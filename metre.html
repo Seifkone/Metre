@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f0f8ff;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .controls {
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .dimensions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .dimension-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input {
+      width: 60px;
+      padding: 5px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .shape {
+      margin: 40px;
+      transition: all 1s ease-in-out;
+      position: relative;
+    }
+
+    /* Style pour le mètre (trait simple) */
+    .line {
+      height: 4px;
+      background-color: #2196F3;
+      position: relative;
+    }
+
+    .line-units {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      top: -10px;
+    }
+
+    .line-unit {
+      width: 2px;
+      height: 12px;
+      background-color: #2196F3;
+    }
+
+    /* Style pour le mètre carré */
+    .square {
+      position: relative;
+      background-color: rgba(33, 150, 243, 0.6);
+    }
+
+    .square-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: grid;
+    }
+
+    .square-unit {
+      border: 1px solid white;
+    }
+
+    /* Style pour le mètre cube */
+    .cube-container {
+      perspective: 1000px;
+      margin: 100px;
+    }
+
+    .cube {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-20deg) rotateY(-30deg);
+      transition: transform 1s;
+    }
+
+    .cube-face {
+      position: absolute;
+      background-color: rgba(33, 150, 243, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .cube-face-front { transform: rotateY(0deg) translateZ(100px); }
+    .cube-face-back { transform: rotateY(180deg) translateZ(100px); }
+    .cube-face-right { transform: rotateY(90deg) translateZ(100px); }
+    .cube-face-left { transform: rotateY(-90deg) translateZ(100px); }
+    .cube-face-top { transform: rotateX(90deg) translateZ(100px); }
+    .cube-face-bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+    .cube-grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      background-color: rgba(33, 150, 243, 0.2);
+    }
+
+    .cube-unit {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .explanation {
+      font-size: 24px;
+      margin: 20px;
+      color: #333;
+    }
+
+    .result {
+      font-size: 20px;
+      margin-top: 20px;
+      color: #2196F3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Découvrons les unités de mesure !</h1>
+  
+  <div class="container">
+    <div class="controls">
+      <div class="dimensions">
+        <div class="dimension-input">
+          <label>Longueur</label>
+          <input type="number" id="length" value="4" min="1" max="10">
+        </div>
+        <div class="dimension-input">
+          <label>Largeur</label>
+          <input type="number" id="width" value="3" min="1" max="10">
+        </div>
+        <div class="dimension-input">
+          <label>Hauteur</label>
+          <input type="number" id="height" value="2" min="1" max="10">
+        </div>
+      </div>
+
+      <div>
+        <button onclick="showLine()">Mètre (m)</button>
+        <button onclick="showSquare()">Mètre carré (m²)</button>
+        <button onclick="showCube()">Mètre cube (m³)</button>
+      </div>
+    </div>
+
+    <div id="shape-container">
+      <div class="shape line" id="shape"></div>
+    </div>
+    
+    <div class="explanation" id="explanation">
+      Le mètre (m) mesure une longueur
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const shapeContainer = document.getElementById('shape-container');
+    let shape = document.getElementById('shape');
+    const explanation = document.getElementById('explanation');
+    const result = document.getElementById('result');
+    const lengthInput = document.getElementById('length');
+    const widthInput = document.getElementById('width');
+    const heightInput = document.getElementById('height');
+
+    function updateLine() {
+      const length = parseInt(lengthInput.value);
+      shape.style.width = `${length * 50}px`;
+      
+      const units = document.createElement('div');
+      units.className = 'line-units';
+      for (let i = 0; i <= length; i++) {
+        const unit = document.createElement('div');
+        unit.className = 'line-unit';
+        units.appendChild(unit);
+      }
+      
+      shape.innerHTML = '';
+      shape.appendChild(units);
+      result.textContent = `Longueur totale : ${length} m`;
+    }
+
+    function updateSquare() {
+      const length = parseInt(lengthInput.value);
+      const width = parseInt(widthInput.value);
+      shape.style.width = `${length * 50}px`;
+      shape.style.height = `${width * 50}px`;
+      
+      const grid = document.createElement('div');
+      grid.className = 'square-grid';
+      grid.style.gridTemplateColumns = `repeat(${length}, 1fr)`;
+      grid.style.gridTemplateRows = `repeat(${width}, 1fr)`;
+      
+      for (let i = 0; i < length * width; i++) {
+        const unit = document.createElement('div');
+        unit.className = 'square-unit';
+        grid.appendChild(unit);
+      }
+      
+      shape.innerHTML = '';
+      shape.appendChild(grid);
+      result.textContent = `Surface totale : ${length * width} m²`;
+    }
+
+    function createCubeFace(length, width) {
+      const grid = document.createElement('div');
+      grid.className = 'cube-grid';
+      grid.style.gridTemplateColumns = `repeat(${length}, 1fr)`;
+      grid.style.gridTemplateRows = `repeat(${width}, 1fr)`;
+      
+      for (let i = 0; i < length * width; i++) {
+        const unit = document.createElement('div');
+        unit.className = 'cube-unit';
+        grid.appendChild(unit);
+      }
+      
+      return grid;
+    }
+
+    function updateCube() {
+      const length = parseInt(lengthInput.value);
+      const width = parseInt(widthInput.value);
+      const height = parseInt(heightInput.value);
+      const size = 50; // Taille de base pour chaque unité
+      
+      const cubeContainer = document.createElement('div');
+      cubeContainer.className = 'cube-container';
+      
+      const cube = document.createElement('div');
+      cube.className = 'cube';
+      cube.style.width = `${length * size}px`;
+      cube.style.height = `${width * size}px`;
+      
+      // Créer les six faces
+      const faces = [
+        { name: 'front', dims: [length, width] },
+        { name: 'back', dims: [length, width] },
+        { name: 'right', dims: [height, width] },
+        { name: 'left', dims: [height, width] },
+        { name: 'top', dims: [length, height] },
+        { name: 'bottom', dims: [length, height] }
+      ];
+
+      faces.forEach(({ name, dims }) => {
+        const face = document.createElement('div');
+        face.className = `cube-face cube-face-${name}`;
+        face.style.width = `${dims[0] * size}px`;
+        face.style.height = `${dims[1] * size}px`;
+        face.appendChild(createCubeFace(dims[0], dims[1]));
+        cube.appendChild(face);
+      });
+
+      cubeContainer.appendChild(cube);
+      shapeContainer.innerHTML = '';
+      shapeContainer.appendChild(cubeContainer);
+      
+      result.textContent = `Volume total : ${length * width * height} m³`;
+    }
+
+    function showLine() {
+      shapeContainer.innerHTML = '<div class="shape line" id="shape"></div>';
+      shape = document.getElementById('shape');
+      explanation.textContent = 'Le mètre (m) mesure une longueur';
+      updateLine();
+    }
+
+    function showSquare() {
+      shapeContainer.innerHTML = '<div class="shape square" id="shape"></div>';
+      shape = document.getElementById('shape');
+      explanation.textContent = 'Le mètre carré (m²) mesure une surface';
+      updateSquare();
+    }
+
+    function showCube() {
+      explanation.textContent = 'Le mètre cube (m³) mesure un volume';
+      updateCube();
+    }
+
+    // Event listeners
+    lengthInput.addEventListener('change', () => {
+      if (shape.classList.contains('line')) showLine();
+      else if (shape.classList.contains('square')) showSquare();
+      else showCube();
+    });
+    
+    widthInput.addEventListener('change', () => {
+      if (shape.classList.contains('square')) showSquare();
+      else if (!shape.classList.contains('line')) showCube();
+    });
+    
+    heightInput.addEventListener('change', () => {
+      if (!shape.classList.contains('line') && !shape.classList.contains('square')) showCube();
+    });
+
+    // Initialisation
+    showLine();
+  </script>
+</body>
+</html>
